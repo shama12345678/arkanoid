@@ -7,7 +7,7 @@ pygame.init()
  
 bg = pygame.mixer.music.load("bg_music.mp3")
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.set_volume(1)
 
 
 s = pygame.mixer.Sound("catch.wav")
@@ -20,7 +20,7 @@ mw.fill(back)
 clock = pygame.time.Clock() 
 dx = 3 
 dy = 3 
- 
+score = 0
  
 platform_x = 200 
 platform_y = 550 
@@ -65,8 +65,8 @@ class Picture(Area):
 
 ball = Picture('ball-removebg-preview (1).png', 160, 350, 5, 5) 
 platform = Picture('platform-removebg-preview (1).png', platform_x, platform_y, 260, 160) 
-start_x = 5 
-start_y = 5 
+start_x = 50 
+start_y = 50 
 count = 9 
  
  
@@ -107,11 +107,16 @@ while not game_over:
               move_up = False
           if event.key == pygame.K_DOWN:
               move_down = False 
-     
+  
+
+  time_text = Label(0,0,50,50,back) 
+  time_text.set_text(f'SCORE:{score}/24',40, (200,100,0)) 
+  time_text.draw(10, 10)
+
   if move_right: 
-      platform.rect.x +=20 
+      platform.rect.x +=10 
   if move_left: 
-      platform.rect.x -=20
+      platform.rect.x -=10
   if move_up:
       platform.rect.y -= 3
   if move_down:
@@ -125,17 +130,23 @@ while not game_over:
       s.play() 
       dx *= -1 
   if ball.rect.y > 600: 
-      s_game_over.play()
-      time_text = Label(150,150,50,50,back) 
-      time_text.set_text('YOU LOSE',60, (255,0,0)) 
+      pygame.mixer.music.stop()
+      s_game_over.play(0)
+      time_text = Label(200,360,50,50,back) 
+      time_text.set_text('YOU LOSE',100, (255,0,0)) 
       time_text.draw(10, 10)
-      game_over = True 
+
+   
   if len(monsters) == 0:
-      s_win.play() 
-      time_text = Label(150,150,50,50,back) 
-      time_text.set_text('YOU WIN',60, (0,200,0)) 
-      time_text.draw(10, 10) 
-      game_over = True 
+      dy = 0
+      dx = 0
+     
+      s_win.play()
+      pygame.mixer.music.stop()
+      time_text = Label(200,360,50,50,back) 
+      time_text.set_text('YOU WIN',100, (0,200,0)) 
+      time_text.draw(10, 10)
+   
   if ball.rect.colliderect(platform.rect): 
       s.play()
       dy *= -1 
@@ -143,13 +154,14 @@ while not game_over:
       m.draw() 
       #если монстра коснулся мяч, удаляем монстра из списка и меняем направления движения мяча 
       if m.rect.colliderect(ball.rect):
+          score += 1 
           s.play() 
           monsters.remove(m) 
           m.fill() 
-          dy *= -1 
+          dy *= -1.1
   platform.draw() 
   ball.draw() 
 
   pygame.display.update() 
-  clock.tick(80)
+  clock.tick(60)
 
